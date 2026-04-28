@@ -8,6 +8,8 @@ from server.schemas import ParamSpec
 
 ADAPTER_MODULES = [
     "server.models.chatterbox_en",
+    "server.models.chatterbox_turbo",
+    "server.models.chatterbox_mtl",
 ]
 
 

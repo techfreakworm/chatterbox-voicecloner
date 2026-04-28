@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+.installed-marker
+*.egg-info/
+.pytest_cache/
+
+# Node
+node_modules/
+web/dist/
+*.log
+
+# Server-served SPA build
+server/static/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+
+# Misc
+*.wav
+*.mp3
+!web/src/**/*.wav
+.env

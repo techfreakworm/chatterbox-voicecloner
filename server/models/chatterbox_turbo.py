@@ -13,10 +13,21 @@ class Adapter:
     id: ClassVar[str] = "chatterbox-turbo"
     label: ClassVar[str] = "Chatterbox Turbo"
     description: ClassVar[str] = (
-        "Faster, lower-VRAM English variant. Supports [laugh], [cough], [chuckle] tags."
+        "Faster, lower-VRAM English variant. Supports event tags: "
+        "[laugh] [chuckle] [sigh] [gasp] [cough] [sniff] [groan] [clear throat] [shush]."
     )
     languages: ClassVar[list[Lang]] = [Lang(code="en", label="English")]
-    paralinguistic_tags: ClassVar[list[str]] = ["[laugh]", "[cough]", "[chuckle]"]
+    paralinguistic_tags: ClassVar[list[str]] = [
+        "[laugh]",
+        "[chuckle]",
+        "[sigh]",
+        "[gasp]",
+        "[cough]",
+        "[sniff]",
+        "[groan]",
+        "[clear throat]",
+        "[shush]",
+    ]
     supports_voice_clone: ClassVar[bool] = True
     params: ClassVar[list[ParamSpec]] = [
         ParamSpec(name="cfg_weight", label="CFG weight", type="float",

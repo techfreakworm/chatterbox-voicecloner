@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { Recorder } from "@/lib/audio";
 import { addVoice } from "@/lib/idb";
+import { encodeWav } from "@/lib/wav";
 
 type Props = {
   onSaved: () => void;
@@ -16,9 +17,11 @@ export default function VoiceComposer({ onSaved }: Props) {
     const arr = new Uint8Array(await blob.arrayBuffer());
     const ctx = new AudioContext();
     const buf = await ctx.decodeAudioData(arr.buffer.slice(0));
+    // Re-encode as 16-bit PCM mono WAV so the server (libsndfile) can decode it.
+    const wav = encodeWav(buf);
     await addVoice({
       name: name || defaultName || `voice-${Date.now()}`,
-      blob,
+      blob: wav,
       sampleRate: buf.sampleRate,
       durationMs: Math.round(buf.duration * 1000),
     });

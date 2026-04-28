@@ -1,0 +1,11 @@
+.venv
+__pycache__
+*.pyc
+node_modules
+web/dist
+server/static
+.pytest_cache
+.git
+docs
+*.md
+!README.md

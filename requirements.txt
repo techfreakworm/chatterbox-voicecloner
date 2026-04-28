@@ -5,6 +5,7 @@ pydantic>=2.9
 python-multipart
 soundfile==0.12.1
 sse-starlette
+setuptools>=68,<80
 
 # dev
 pytest==8.3.3

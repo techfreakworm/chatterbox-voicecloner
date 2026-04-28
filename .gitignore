@@ -9,6 +9,9 @@ __pycache__/
 # Node
 node_modules/
 web/dist/
+web/*.tsbuildinfo
+web/vite.config.js
+web/vite.config.d.ts
 *.log
 
 # Server-served SPA build

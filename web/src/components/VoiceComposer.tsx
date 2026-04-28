@@ -52,43 +52,46 @@ export default function VoiceComposer({ onSaved }: Props) {
   }
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       <input
         type="text"
-        placeholder="Voice name (optional)"
+        placeholder="Name this voice"
         value={name}
         onChange={(e) => setName(e.target.value)}
-        className="w-full rounded-md border border-border bg-background px-2 py-1 text-sm"
+        className="field-input"
       />
       <div className="flex gap-2">
         <button
           type="button"
           onClick={() => fileRef.current?.click()}
-          className="rounded-md border border-border px-3 py-1.5 text-sm"
+          className="btn-ghost flex-1"
         >
-          Upload .wav/.mp3
+          ↑ Upload
         </button>
         <input ref={fileRef} type="file" accept="audio/*" hidden onChange={onFile} />
         {recState === "recording" ? (
           <button
             type="button"
             onClick={stopRec}
-            className="rounded-md bg-primary text-primary-foreground px-3 py-1.5 text-sm"
+            className="btn-primary flex-1 !py-2 flex items-center justify-center gap-2"
           >
+            <span className="size-1.5 rounded-full bg-current animate-pulse-dot" />
             Stop &amp; save
           </button>
         ) : (
           <button
             type="button"
             onClick={startRec}
-            className="rounded-md border border-border px-3 py-1.5 text-sm"
+            className="btn-ghost flex-1"
           >
-            Record
+            ● Record
           </button>
         )}
       </div>
       {recState === "error" && (
-        <p className="text-xs text-red-500">Microphone permission denied.</p>
+        <p className="text-[11px] text-red-400 font-mono uppercase tracking-wider">
+          microphone permission denied
+        </p>
       )}
     </div>
   );

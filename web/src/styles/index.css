@@ -4,31 +4,113 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --border: 240 5.9% 90%;
-    --ring: 240 5% 64.9%;
-    --primary: 250 76% 62%;
-    --primary-foreground: 0 0% 100%;
-    --accent: 268 92% 70%;
-    --accent-foreground: 0 0% 100%;
-    --radius: 0.75rem;
+    /* parchment / warm light (unused but kept for future toggle) */
+    --background: 36 30% 96%;
+    --foreground: 25 30% 12%;
+    --muted: 36 22% 92%;
+    --muted-foreground: 25 15% 35%;
+    --border: 32 18% 82%;
+    --ring: 28 78% 52%;
+    --paper: 36 36% 98%;
+    --ink: 25 32% 10%;
+    --primary: 28 78% 52%;
+    --primary-foreground: 36 36% 98%;
+    --accent: 18 58% 38%;
+    --accent-foreground: 36 36% 98%;
+    --ember: 28 92% 60%;
+    --radius: 0.4rem;
   }
   .dark {
-    --background: 240 10% 4%;
-    --foreground: 0 0% 98%;
-    --muted: 240 4% 12%;
-    --muted-foreground: 240 5% 65%;
-    --border: 240 6% 18%;
-    --ring: 250 76% 62%;
-    --primary: 250 76% 62%;
-    --primary-foreground: 0 0% 100%;
-    --accent: 268 92% 70%;
-    --accent-foreground: 0 0% 100%;
+    /* warm near-black, parchment text, single ember accent */
+    --background: 28 14% 7%;
+    --foreground: 38 28% 92%;
+    --muted: 28 10% 12%;
+    --muted-foreground: 35 14% 64%;
+    --border: 28 10% 18%;
+    --ring: 28 92% 60%;
+    --paper: 28 16% 9%;
+    --ink: 38 28% 92%;
+    --primary: 28 92% 60%;
+    --primary-foreground: 28 14% 7%;
+    --accent: 18 58% 48%;
+    --accent-foreground: 38 28% 92%;
+    --ember: 28 92% 60%;
+  }
+  html, body {
+    @apply bg-background text-foreground antialiased;
+    font-family: theme("fontFamily.sans");
+    font-feature-settings: "ss01", "cv11";
   }
   body {
-    @apply bg-background text-foreground antialiased;
+    background-image:
+      radial-gradient(ellipse 90% 60% at 100% 0%, hsl(28 70% 30% / 0.10), transparent 60%),
+      radial-gradient(ellipse 80% 50% at 0% 100%, hsl(18 50% 24% / 0.10), transparent 60%);
+    background-attachment: fixed;
+  }
+  /* subtle grain via CSS */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.06;
+    mix-blend-mode: overlay;
+    background-image:
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/></svg>");
+  }
+  ::selection {
+    background: hsl(var(--ember) / 0.35);
+    color: hsl(var(--foreground));
+  }
+}
+
+@layer components {
+  .label-mono {
+    @apply font-mono text-[10.5px] tracking-widest2 uppercase text-muted-foreground;
+  }
+  .display-serif {
+    font-family: theme("fontFamily.display");
+    font-optical-sizing: auto;
+    font-variation-settings: "opsz" 144;
+    letter-spacing: -0.015em;
+  }
+  .rule-dotted {
+    background-image: radial-gradient(circle, hsl(var(--border)) 1px, transparent 1.4px);
+    background-size: 6px 1px;
+    background-repeat: repeat-x;
+    height: 1px;
+  }
+  .ember-ring:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 1px hsl(var(--background)), 0 0 0 3px hsl(var(--ember) / 0.7);
+  }
+  .btn-primary {
+    @apply font-mono uppercase tracking-widest2 text-[12px] py-3 px-4 rounded-sm
+      bg-primary text-primary-foreground transition-colors duration-200
+      hover:bg-[hsl(var(--ember))] disabled:opacity-40 disabled:cursor-not-allowed;
+  }
+  .btn-ghost {
+    @apply font-mono uppercase tracking-widest2 text-[11px] py-2 px-3 rounded-sm
+      border border-border text-muted-foreground transition-colors duration-200
+      hover:text-foreground hover:border-foreground/40;
+  }
+  .field-input {
+    @apply w-full rounded-sm border border-border bg-paper/60 px-3 py-2 text-sm
+      placeholder:text-muted-foreground focus:border-[hsl(var(--ember))]/60
+      focus:outline-none transition-colors;
+  }
+  .card-paper {
+    @apply rounded-sm border border-border bg-paper/40 backdrop-blur-[1px];
+  }
+  .marker-num {
+    @apply font-mono text-[11px] text-[hsl(var(--ember))] tracking-widest2;
+  }
+}
+
+@layer utilities {
+  .relative-z {
+    position: relative;
+    z-index: 1;
   }
 }

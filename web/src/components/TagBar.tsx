@@ -25,13 +25,14 @@ export default function TagBar({ tags, targetRef }: Props) {
     el.focus();
   }
   return (
-    <div className="flex flex-wrap gap-1.5">
+    <div className="flex flex-wrap items-center gap-1.5">
+      <span className="label-mono mr-1">insert</span>
       {tags.map((t) => (
         <button
           key={t}
           type="button"
           onClick={() => insert(t)}
-          className="text-xs px-2 py-0.5 rounded-md border border-border hover:bg-muted"
+          className="font-mono text-[11px] px-2 py-0.5 rounded-sm border border-border text-muted-foreground hover:text-[hsl(var(--ember))] hover:border-[hsl(var(--ember))]/50 transition-colors"
         >
           {t}
         </button>

@@ -16,6 +16,20 @@ import ParamsPanel from "@/components/ParamsPanel";
 import TagBar from "@/components/TagBar";
 import VoiceComposer from "@/components/VoiceComposer";
 import VoiceLibrary from "@/components/VoiceLibrary";
+import { cn } from "@/lib/utils";
+
+function SectionHeader({ num, title, hint }: { num: string; title: string; hint?: string }) {
+  return (
+    <div className="space-y-1">
+      <div className="flex items-baseline gap-3">
+        <span className="marker-num">{num}</span>
+        <h2 className="display-serif text-[22px] leading-tight">{title}</h2>
+      </div>
+      {hint && <p className="label-mono">{hint}</p>}
+      <div className="rule-dotted mt-2" />
+    </div>
+  );
+}
 
 export default function Studio() {
   const [models, setModels] = useState<ModelInfo[]>([]);
@@ -117,33 +131,43 @@ export default function Studio() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <header className="border-b border-border px-6 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <span className="size-2.5 rounded-full bg-primary" />
-          <span className="font-medium">Chatterbox Voice Studio</span>
-        </div>
-        <div className="flex items-center gap-3">
-          <ModelPicker
-            models={models}
-            activeId={activeId}
-            loading={loadingModel || busy}
-            onPick={pickModel}
-          />
-          <DeviceBadge />
+    <div className="min-h-screen relative-z animate-fade-up">
+      {/* Header */}
+      <header className="border-b border-border">
+        <div className="mx-auto max-w-[1280px] px-8 py-5 flex items-end justify-between">
+          <div className="flex items-end gap-4">
+            <span className="display-serif text-[34px] leading-none">Chatterbox</span>
+            <span className="label-mono pb-1">voice studio · v0.1</span>
+          </div>
+          <div className="flex items-center gap-6">
+            <ModelPicker
+              models={models}
+              activeId={activeId}
+              loading={loadingModel || busy}
+              onPick={pickModel}
+            />
+            <DeviceBadge />
+          </div>
         </div>
       </header>
 
       <LoadingBanner
         visible={loadingModel}
-        message="Loading model… first activation can take 30–60s."
+        message="Loading model — first activation can take 30–60s"
       />
-      {err && <div className="bg-red-500/10 text-red-400 text-sm px-6 py-2">{err}</div>}
+      {err && (
+        <div className="border-b border-red-900/40 bg-red-950/30 px-8 py-2.5">
+          <span className="label-mono text-red-400">error</span>
+          <span className="ml-3 text-sm text-red-300/90">{err}</span>
+        </div>
+      )}
 
-      <main className="flex-1 grid lg:grid-cols-[1fr_420px] gap-6 p-6">
-        <section className="space-y-4">
-          <div className="space-y-2">
-            <h2 className="text-sm font-medium">Reference voice</h2>
+      <main className="mx-auto max-w-[1280px] px-8 py-10 grid lg:grid-cols-[minmax(0,1fr)_400px] gap-12">
+        {/* Composer column */}
+        <section className="space-y-12">
+          {/* 01 — Voice */}
+          <div className="space-y-5">
+            <SectionHeader num="01" title="Reference voice" hint="upload, record, or pick from your library" />
             <VoiceComposer onSaved={() => setLibraryKey((k) => k + 1)} />
             <VoiceLibrary
               selectedId={selectedVoice?.id}
@@ -152,88 +176,97 @@ export default function Studio() {
             />
           </div>
 
-          {active?.languages && active.languages.length > 1 && (
-            <div className="space-y-1">
-              <label htmlFor="lang-select" className="text-sm font-medium">
-                Language
-              </label>
-              <select
-                id="lang-select"
-                value={language ?? ""}
-                onChange={(e) => setLanguage(e.target.value)}
-                className="w-full rounded-md border border-border bg-background px-2 py-1 text-sm"
-              >
-                {active.languages.map((l) => (
-                  <option key={l.code} value={l.code}>
-                    {l.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-
-          <div className="space-y-2">
-            <label htmlFor="prompt" className="text-sm font-medium">
-              Text
-            </label>
+          {/* 02 — Script */}
+          <div className="space-y-4">
+            <SectionHeader num="02" title="Script" hint="what should the voice say?" />
+            {active?.languages && active.languages.length > 1 && (
+              <div className="flex items-center gap-3">
+                <label htmlFor="lang-select" className="label-mono">language</label>
+                <select
+                  id="lang-select"
+                  value={language ?? ""}
+                  onChange={(e) => setLanguage(e.target.value)}
+                  className="field-input !w-auto font-mono text-[12px] py-1"
+                >
+                  {active.languages.map((l) => (
+                    <option key={l.code} value={l.code}>{l.label}</option>
+                  ))}
+                </select>
+              </div>
+            )}
             <textarea
               id="prompt"
               ref={textRef}
               value={text}
               onChange={(e) => setText(e.target.value)}
-              rows={6}
-              className="w-full rounded-md border border-border bg-background p-2 text-sm"
-              placeholder="Type what the voice should say…"
+              rows={7}
+              className="field-input font-display text-[18px] leading-relaxed"
+              placeholder="Once upon a midnight dreary, while I pondered, weak and weary…"
             />
             <div className="flex items-center justify-between">
               <TagBar tags={active?.paralinguistic_tags ?? []} targetRef={textRef} />
-              <span className="text-xs text-muted-foreground">{text.length} chars</span>
+              <span className="label-mono">{text.length} chars</span>
             </div>
           </div>
 
+          {/* 03 — Parameters */}
           {active && (
-            <div className="space-y-2">
-              <h2 className="text-sm font-medium">Parameters</h2>
+            <div className="space-y-5">
+              <SectionHeader num="03" title="Parameters" hint={active.description} />
               <ParamsPanel specs={active.params} values={params} onChange={setParams} />
             </div>
           )}
 
-          <button
-            type="button"
-            onClick={() => onGenerate()}
-            disabled={busy || loadingModel || !text.trim()}
-            className="w-full rounded-md bg-primary text-primary-foreground py-2.5 text-sm font-medium disabled:opacity-50"
-          >
-            {busy ? "Generating…" : "Generate"}
-          </button>
+          {/* Generate */}
+          <div className="space-y-4 pt-2">
+            <button
+              type="button"
+              onClick={() => onGenerate()}
+              disabled={busy || loadingModel || !text.trim()}
+              className="btn-primary w-full flex items-center justify-center gap-3 ember-ring"
+            >
+              {busy ? (
+                <>
+                  <span className="size-1.5 rounded-full bg-current animate-pulse-dot" />
+                  Generating
+                </>
+              ) : (
+                <>Generate <span className="opacity-60">→</span></>
+              )}
+            </button>
 
-          {outputUrl && (
-            <div className="space-y-1">
-              <h2 className="text-sm font-medium">Output</h2>
-              <audio controls src={outputUrl} className="w-full" />
-              <a href={outputUrl} download="chatterbox.wav" className="text-xs underline">
-                download
-              </a>
-            </div>
-          )}
+            {outputUrl && (
+              <div className="card-paper p-4 space-y-3">
+                <div className="flex items-baseline justify-between">
+                  <span className="label-mono">latest output</span>
+                  <a href={outputUrl} download="chatterbox.wav" className="label-mono hover:text-foreground">
+                    ↓ download
+                  </a>
+                </div>
+                <audio controls src={outputUrl} className="w-full h-10" />
+              </div>
+            )}
+          </div>
         </section>
 
-        <aside className="space-y-3">
-          <div className="flex gap-1">
-            <button
-              type="button"
-              onClick={() => setTab("voices")}
-              className={`flex-1 rounded-md px-2 py-1 text-sm ${tab === "voices" ? "bg-muted" : ""}`}
-            >
-              Voices
-            </button>
-            <button
-              type="button"
-              onClick={() => setTab("history")}
-              className={`flex-1 rounded-md px-2 py-1 text-sm ${tab === "history" ? "bg-muted" : ""}`}
-            >
-              History
-            </button>
+        {/* Workspace column */}
+        <aside className="space-y-5 lg:sticky lg:top-8 self-start">
+          <div className="flex border-b border-border">
+            {(["voices", "history"] as const).map((t) => (
+              <button
+                key={t}
+                type="button"
+                onClick={() => setTab(t)}
+                className={cn(
+                  "flex-1 label-mono py-2 transition-colors border-b-2",
+                  tab === t
+                    ? "text-foreground border-[hsl(var(--ember))]"
+                    : "border-transparent hover:text-foreground",
+                )}
+              >
+                {t}
+              </button>
+            ))}
           </div>
           {tab === "voices" ? (
             <VoiceLibrary
@@ -246,6 +279,13 @@ export default function Studio() {
           )}
         </aside>
       </main>
+
+      <footer className="border-t border-border mt-16">
+        <div className="mx-auto max-w-[1280px] px-8 py-6 flex items-center justify-between">
+          <span className="label-mono">chatterbox · resemble ai</span>
+          <span className="label-mono">stateless · browser-persisted</span>
+        </div>
+      </footer>
     </div>
   );
 }

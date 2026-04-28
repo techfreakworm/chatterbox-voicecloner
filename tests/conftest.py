@@ -1,7 +1,7 @@
 """Shared test fixtures."""
 from __future__ import annotations
 
-import asyncio
+from contextlib import asynccontextmanager
 
 import pytest
 
@@ -49,3 +49,10 @@ class FakeAdapterB(FakeAdapter):
 def fake_classes():
     FakeAdapter.instances.clear()
     return {FakeAdapter.id: FakeAdapter, FakeAdapterB.id: FakeAdapterB}
+
+
+@asynccontextmanager
+async def lifespan_ctx(app):
+    """Run an ASGI app's lifespan startup/shutdown around an `httpx.AsyncClient`."""
+    async with app.router.lifespan_context(app):
+        yield

@@ -25,6 +25,7 @@ async def test_generate_returns_wav_bytes(monkeypatch, fake_classes):
     assert r.status_code == 200
     assert r.headers["content-type"].startswith("audio/wav")
     assert r.content == b"FAKEWAV"
+    assert r.headers["x-seed-used"] == "0"
 
 
 async def test_generate_unknown_model_404(monkeypatch, fake_classes):

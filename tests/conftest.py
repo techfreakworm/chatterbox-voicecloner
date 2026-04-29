@@ -37,7 +37,10 @@ class FakeAdapter:
         self.loaded = False
 
     def generate(self, text, reference_wav_path, language, params):
-        return (b"FAKEWAV", 24000)
+        # FakeAdapter never actually applies a seed; report the input or 0.
+        seed_in = params.get("seed", 0) if isinstance(params, dict) else 0
+        seed_used = 0 if seed_in is None or seed_in < 0 else int(seed_in)
+        return (b"FAKEWAV", 24000, seed_used)
 
 
 class FakeAdapterB(FakeAdapter):

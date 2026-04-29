@@ -151,13 +151,19 @@ def build_app() -> FastAPI:
 
         gen_fn = decorate(adapter.generate)
         try:
-            wav_bytes, _sr = gen_fn(text, ref_path, language, json.loads(params or "{}"))
+            wav_bytes, _sr, seed_used = gen_fn(
+                text, ref_path, language, json.loads(params or "{}")
+            )
         except Exception as exc:
             return JSONResponse(
                 status_code=500,
                 content={"error": {"code": "generation_failed", "message": str(exc)}},
             )
-        return Response(content=wav_bytes, media_type="audio/wav")
+        return Response(
+            content=wav_bytes,
+            media_type="audio/wav",
+            headers={"X-Seed-Used": str(seed_used), "Access-Control-Expose-Headers": "X-Seed-Used"},
+        )
 
     @app.exception_handler(HTTPException)
     async def _http_exc(request, exc: HTTPException):

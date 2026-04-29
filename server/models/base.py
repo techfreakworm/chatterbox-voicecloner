@@ -29,7 +29,7 @@ class ModelAdapter(Protocol):
         reference_wav_path: str | None,
         language: str | None,
         params: dict[str, Any],
-    ) -> tuple[bytes, int]: ...
+    ) -> tuple[bytes, int, int]: ...   # (wav_bytes, sample_rate, seed_used)
 
 
 def is_valid_adapter(cls: type) -> bool:

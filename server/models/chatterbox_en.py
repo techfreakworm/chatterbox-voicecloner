@@ -7,6 +7,7 @@ from typing import Any, ClassVar
 import soundfile as sf
 
 from server.schemas import Lang, ParamSpec
+from server.seed import apply_seed
 
 
 class Adapter:
@@ -52,9 +53,10 @@ class Adapter:
         reference_wav_path: str | None,
         language: str | None,
         params: dict[str, Any],
-    ) -> tuple[bytes, int]:
+    ) -> tuple[bytes, int, int]:
         if self._model is None:
             raise RuntimeError("model not loaded")
+        seed_used = apply_seed(params.get("seed"))
         wav = self._model.generate(
             text,
             audio_prompt_path=reference_wav_path,
@@ -73,4 +75,4 @@ class Adapter:
         sr = getattr(self._model, "sr", 24000)
         buf = io.BytesIO()
         sf.write(buf, arr, sr, format="WAV", subtype="PCM_16")
-        return buf.getvalue(), sr
+        return buf.getvalue(), sr, seed_used

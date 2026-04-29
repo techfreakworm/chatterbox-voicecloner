@@ -57,7 +57,12 @@ export type GenerateInput = {
   reference?: Blob;
 };
 
-export async function generate(input: GenerateInput): Promise<Blob> {
+export type GenerateResult = {
+  blob: Blob;
+  seedUsed: number | null;
+};
+
+export async function generate(input: GenerateInput): Promise<GenerateResult> {
   const fd = new FormData();
   fd.set("text", input.text);
   fd.set("model_id", input.modelId);
@@ -71,7 +76,10 @@ export async function generate(input: GenerateInput): Promise<Blob> {
     const msg = err?.error?.message;
     throw new Error(msg ? `${code}: ${msg}` : code);
   }
-  return r.blob();
+  const seedHeader = r.headers.get("x-seed-used");
+  const seedUsed = seedHeader != null ? Number(seedHeader) : null;
+  const blob = await r.blob();
+  return { blob, seedUsed };
 }
 
 export function streamActiveEvents(

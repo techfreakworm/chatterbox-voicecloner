@@ -55,3 +55,45 @@ describe("history", () => {
     expect(items[0].text).toBe(`t${HISTORY_CAP + 4}`);
   });
 });
+
+describe("history v2", () => {
+  it("stores seedUsed and kind on a row", async () => {
+    const id = await addHistory({
+      text: "x",
+      modelId: "m",
+      voiceId: undefined,
+      language: undefined,
+      params: {},
+      audioBlob: new Blob([""]),
+      kind: "single",
+      seedUsed: 12345,
+    });
+    const items = await listHistory();
+    const item = items.find((h) => h.id === id)!;
+    expect(item.seedUsed).toBe(12345);
+    expect(item.kind).toBe("single");
+  });
+
+  it("stores speakers list on a dialog row", async () => {
+    const id = await addHistory({
+      text: "SPEAKER A: hi",
+      modelId: "m",
+      voiceId: undefined,
+      language: undefined,
+      params: {},
+      audioBlob: new Blob([""]),
+      kind: "dialog",
+      seedUsed: 7,
+      speakers: [
+        { letter: "A", voiceId: 1 },
+        { letter: "B", voiceId: 2 },
+      ],
+    });
+    const items = await listHistory();
+    const item = items.find((h) => h.id === id)!;
+    expect(item.speakers).toEqual([
+      { letter: "A", voiceId: 1 },
+      { letter: "B", voiceId: 2 },
+    ]);
+  });
+});

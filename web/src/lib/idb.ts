@@ -12,6 +12,8 @@ export type VoiceRecord = {
   isFavorite: boolean;
 };
 
+export type SpeakerRef = { letter: "A" | "B" | "C" | "D"; voiceId: number };
+
 export type HistoryRecord = {
   id?: number;
   text: string;
@@ -21,6 +23,9 @@ export type HistoryRecord = {
   params: Record<string, unknown>;
   audioBlob: Blob;
   createdAt: number;
+  kind?: "single" | "dialog";
+  seedUsed?: number;
+  speakers?: SpeakerRef[];
 };
 
 class DB extends Dexie {
@@ -32,6 +37,15 @@ class DB extends Dexie {
     this.version(1).stores({
       voices: "++id, name, createdAt, isFavorite",
       history: "++id, createdAt",
+    });
+    this.version(2).stores({
+      voices: "++id, name, createdAt, isFavorite",
+      history: "++id, createdAt",
+    }).upgrade(async (tx) => {
+      // Backfill new fields on existing rows so listings stay consistent.
+      await tx.table("history").toCollection().modify((r: HistoryRecord) => {
+        if (!r.kind) r.kind = "single";
+      });
     });
   }
 }

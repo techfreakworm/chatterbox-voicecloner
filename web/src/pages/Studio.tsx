@@ -103,7 +103,7 @@ export default function Studio() {
       const inputText = reuse?.text ?? text;
       const inputLang = reuse?.language ?? language;
       const inputParams = reuse?.params ?? params;
-      const out = await generate({
+      const result = await generate({
         modelId: active.id,
         text: inputText,
         language: inputLang,
@@ -112,7 +112,7 @@ export default function Studio() {
       });
       setOutputUrl((u) => {
         if (u) URL.revokeObjectURL(u);
-        return URL.createObjectURL(out);
+        return URL.createObjectURL(result.blob);
       });
       await addHistory({
         text: inputText,
@@ -120,7 +120,9 @@ export default function Studio() {
         voiceId: selectedVoice?.id,
         language: inputLang,
         params: inputParams,
-        audioBlob: out,
+        audioBlob: result.blob,
+        kind: "single",
+        seedUsed: result.seedUsed ?? undefined,
       });
       setHistoryKey((k) => k + 1);
     } catch (e) {
@@ -275,7 +277,11 @@ export default function Studio() {
               refreshKey={libraryKey}
             />
           ) : (
-            <HistoryList refreshKey={historyKey} onRegenerate={onGenerate} />
+            <HistoryList
+              refreshKey={historyKey}
+              onRegenerate={onGenerate}
+              onReuseSeed={(seed) => setParams((p) => ({ ...p, seed }))}
+            />
           )}
         </aside>
       </main>

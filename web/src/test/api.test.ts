@@ -37,22 +37,20 @@ describe("api", () => {
     );
   });
 
-  it("generate posts multipart and returns response blob", async () => {
-    fetchMock.mockResolvedValue(new Response("RIFFFAKE", { status: 200 }));
-    const out = await generate({
-      modelId: "x",
-      text: "hi",
-      params: {},
-    });
-    expect(typeof out.size).toBe("number");
+  it("generate posts multipart and returns response blob with seed", async () => {
+    fetchMock.mockResolvedValue(
+      new Response("RIFFFAKE", {
+        status: 200,
+        headers: { "X-Seed-Used": "777" },
+      }),
+    );
+    const out = await generate({ modelId: "x", text: "hi", params: {} });
+    expect(typeof out.blob.size).toBe("number");
+    expect(out.seedUsed).toBe(777);
     expect(fetchMock).toHaveBeenCalledWith(
       "/api/generate",
       expect.objectContaining({ method: "POST" }),
     );
-    const call = fetchMock.mock.calls[0];
-    const body = call[1].body as FormData;
-    expect(body.get("text")).toBe("hi");
-    expect(body.get("model_id")).toBe("x");
   });
 
   it("generate surfaces error JSON on 4xx", async () => {

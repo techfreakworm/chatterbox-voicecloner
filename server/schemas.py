@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field, model_validator
 
 
 ParamType = Literal["float", "int", "bool", "enum"]
+ParamGroup = Literal["basic", "advanced"]
 ModelStatus = Literal["idle", "loading", "loaded", "error"]
 
 
@@ -25,6 +26,7 @@ class ParamSpec(BaseModel):
     step: float | int | None = None
     choices: list[str] | None = None
     help: str = ""
+    group: ParamGroup = "basic"
 
     @model_validator(mode="after")
     def _validate(self) -> "ParamSpec":

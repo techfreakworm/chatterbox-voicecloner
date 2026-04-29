@@ -80,3 +80,16 @@ def test_error_body_serializable():
 def test_generate_params_accepts_arbitrary_dict():
     g = GenerateParams(values={"temperature": 0.8, "cfg_weight": 0.5})
     assert g.values["temperature"] == 0.8
+
+
+def test_param_spec_default_group_is_basic():
+    p = ParamSpec(name="t", label="T", type="float", default=0.5, min=0.0, max=1.0)
+    assert p.group == "basic"
+
+
+def test_param_spec_advanced_group_round_trips():
+    p = ParamSpec(
+        name="seed", label="Seed", type="int", default=-1, min=-1, group="advanced",
+    )
+    assert p.group == "advanced"
+    assert p.model_dump()["group"] == "advanced"

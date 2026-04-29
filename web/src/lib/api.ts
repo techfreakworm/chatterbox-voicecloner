@@ -66,7 +66,9 @@ export async function generate(input: GenerateInput): Promise<Blob> {
   const r = await fetch("/api/generate", { method: "POST", body: fd });
   if (!r.ok) {
     const err = await r.json().catch(() => ({}));
-    throw new Error(err?.error?.code ?? `generate: ${r.status}`);
+    const code = err?.error?.code ?? `generate: ${r.status}`;
+    const msg = err?.error?.message;
+    throw new Error(msg ? `${code}: ${msg}` : code);
   }
   return r.blob();
 }

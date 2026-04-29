@@ -123,9 +123,25 @@ def build_app() -> FastAPI:
             try:
                 validate_reference_clip(data)
             except AudioValidationError as exc:
+                detail = {
+                    "size_bytes": len(data),
+                    "first_4": data[:4].decode("latin-1", errors="replace"),
+                    "filename": reference_wav.filename,
+                    "content_type": reference_wav.content_type,
+                }
+                print(
+                    f"[reference_invalid] {exc} | {detail}",
+                    flush=True,
+                )
                 return JSONResponse(
                     status_code=400,
-                    content={"error": {"code": "reference_invalid", "message": str(exc)}},
+                    content={
+                        "error": {
+                            "code": "reference_invalid",
+                            "message": str(exc),
+                            "detail": detail,
+                        }
+                    },
                 )
             tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".wav")
             tmp.write(data)

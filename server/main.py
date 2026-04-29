@@ -16,6 +16,11 @@ from sse_starlette.sse import EventSourceResponse
 
 from server.audio import AudioValidationError, validate_reference_clip
 from server.device import select_device
+from server.dialog import (
+    DialogParseError,
+    DialogReferenceError,
+    generate_dialog,
+)
 from server.registry import Registry
 from server.zerogpu import decorate
 
@@ -163,6 +168,86 @@ def build_app() -> FastAPI:
             content=wav_bytes,
             media_type="audio/wav",
             headers={"X-Seed-Used": str(seed_used), "Access-Control-Expose-Headers": "X-Seed-Used"},
+        )
+
+    @app.post("/api/generate/dialog")
+    async def generate_dialog_route(
+        text: str = Form(...),
+        engine_id: str = Form(...),
+        params: str = Form("{}"),
+        language: str | None = Form(None),
+        reference_wav_a: UploadFile | None = File(None),
+        reference_wav_b: UploadFile | None = File(None),
+        reference_wav_c: UploadFile | None = File(None),
+        reference_wav_d: UploadFile | None = File(None),
+    ):
+        speaker_clips: dict[str, bytes] = {}
+        upload_map = {
+            "A": reference_wav_a,
+            "B": reference_wav_b,
+            "C": reference_wav_c,
+            "D": reference_wav_d,
+        }
+        for letter, upload in upload_map.items():
+            if upload is None:
+                continue
+            data = await upload.read()
+            try:
+                validate_reference_clip(data)
+            except AudioValidationError as exc:
+                return JSONResponse(
+                    status_code=400,
+                    content={
+                        "error": {
+                            "code": "reference_invalid",
+                            "message": f"speaker {letter}: {exc}",
+                        }
+                    },
+                )
+            speaker_clips[letter] = data
+
+        try:
+            wav_bytes, _sr, seed_used = await generate_dialog(
+                registry=app.state.registry,
+                engine_id=engine_id,
+                text=text,
+                language=language,
+                params=json.loads(params or "{}"),
+                speaker_clips=speaker_clips,
+            )
+        except KeyError:
+            raise HTTPException(
+                status_code=404,
+                detail={"error": {"code": "model_not_found", "message": engine_id}},
+            )
+        except DialogParseError as exc:
+            return JSONResponse(
+                status_code=400,
+                content={
+                    "error": {"code": "dialog_format_invalid", "message": str(exc)}
+                },
+            )
+        except DialogReferenceError as exc:
+            return JSONResponse(
+                status_code=400,
+                content={
+                    "error": {"code": "dialog_missing_reference", "message": str(exc)}
+                },
+            )
+        except Exception as exc:
+            return JSONResponse(
+                status_code=500,
+                content={
+                    "error": {"code": "generation_failed", "message": str(exc)}
+                },
+            )
+        return Response(
+            content=wav_bytes,
+            media_type="audio/wav",
+            headers={
+                "X-Seed-Used": str(seed_used),
+                "Access-Control-Expose-Headers": "X-Seed-Used",
+            },
         )
 
     @app.exception_handler(HTTPException)

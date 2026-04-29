@@ -12,6 +12,9 @@ short_description: Voice cloning studio for the Chatterbox TTS family.
 
 # Chatterbox Voice Studio
 
+[![Open in Spaces](https://huggingface.co/datasets/huggingface/badges/resolve/main/open-in-hf-spaces-md.svg)](https://huggingface.co/spaces/techfreakworm/chatterbox-voice-studio)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+
 A multi-platform browser-based voice cloning studio for the Chatterbox TTS family
 (English, Turbo, Multilingual). Runs locally on macOS (MPS), Linux (CUDA/CPU),
 and Windows (CUDA/CPU). Deploys to Hugging Face Spaces (Free CPU by default,

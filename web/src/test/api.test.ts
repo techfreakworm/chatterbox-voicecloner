@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { activateModel, generate, getActiveModel, listModels } from "@/lib/api";
+import { generateDialog } from "@/lib/api";
 
 const fetchMock = vi.fn();
 
@@ -63,5 +64,47 @@ describe("api", () => {
     await expect(
       generate({ modelId: "x", text: "hi", params: {} }),
     ).rejects.toThrow(/model_not_found/);
+  });
+});
+
+describe("generateDialog", () => {
+  it("posts multipart with engine_id and per-speaker clips", async () => {
+    fetchMock.mockResolvedValue(
+      new Response("RIFFOK", {
+        status: 200,
+        headers: { "X-Seed-Used": "33" },
+      }),
+    );
+    const out = await generateDialog({
+      engineId: "x",
+      text: "SPEAKER A: hi\nSPEAKER B: hi",
+      params: { temperature: 0.8 },
+      speakers: [
+        { letter: "A", reference: new Blob(["a"], { type: "audio/wav" }) },
+        { letter: "B", reference: new Blob(["b"], { type: "audio/wav" }) },
+      ],
+    });
+    expect(out.seedUsed).toBe(33);
+    expect(typeof out.blob.size).toBe("number");
+    const call = fetchMock.mock.calls[0];
+    expect(call[0]).toBe("/api/generate/dialog");
+    const body = call[1].body as FormData;
+    expect(body.get("engine_id")).toBe("x");
+    expect(body.get("text")).toContain("SPEAKER A:");
+    expect(body.get("reference_wav_a")).toBeInstanceOf(Blob);
+    expect(body.get("reference_wav_b")).toBeInstanceOf(Blob);
+  });
+
+  it("forwards language only when provided", async () => {
+    fetchMock.mockResolvedValue(new Response("RIFF", { status: 200 }));
+    await generateDialog({
+      engineId: "x",
+      text: "SPEAKER A: hi",
+      language: "fr",
+      params: {},
+      speakers: [{ letter: "A", reference: new Blob(["a"]) }],
+    });
+    const body = fetchMock.mock.calls[0][1].body as FormData;
+    expect(body.get("language")).toBe("fr");
   });
 });

@@ -95,3 +95,43 @@ export function streamActiveEvents(
   };
   return () => es.close();
 }
+
+export type DialogSpeakerInput = {
+  letter: "A" | "B" | "C" | "D";
+  reference: Blob;
+};
+
+export type DialogInput = {
+  engineId: string;
+  text: string;
+  language?: string;
+  params: Record<string, unknown>;
+  speakers: DialogSpeakerInput[];
+};
+
+export type DialogResult = {
+  blob: Blob;
+  seedUsed: number | null;
+};
+
+export async function generateDialog(input: DialogInput): Promise<DialogResult> {
+  const fd = new FormData();
+  fd.set("text", input.text);
+  fd.set("engine_id", input.engineId);
+  fd.set("params", JSON.stringify(input.params ?? {}));
+  if (input.language) fd.set("language", input.language);
+  for (const s of input.speakers) {
+    fd.set(`reference_wav_${s.letter.toLowerCase()}`, s.reference, `${s.letter}.wav`);
+  }
+  const r = await fetch("/api/generate/dialog", { method: "POST", body: fd });
+  if (!r.ok) {
+    const err = await r.json().catch(() => ({}));
+    const code = err?.error?.code ?? `dialog: ${r.status}`;
+    const msg = err?.error?.message;
+    throw new Error(msg ? `${code}: ${msg}` : code);
+  }
+  const seedHeader = r.headers.get("x-seed-used");
+  const seedUsed = seedHeader != null ? Number(seedHeader) : null;
+  const blob = await r.blob();
+  return { blob, seedUsed };
+}

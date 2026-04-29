@@ -21,6 +21,7 @@ from server.dialog import (
     DialogReferenceError,
     generate_dialog,
 )
+from server.progress import get_bus
 from server.registry import Registry
 from server.zerogpu import decorate
 
@@ -106,6 +107,18 @@ def build_app() -> FastAPI:
 
         return EventSourceResponse(gen())
 
+    @app.get("/api/progress")
+    async def progress_events():
+        bus = get_bus()
+
+        async def gen():
+            async with bus.subscribe() as q:
+                while True:
+                    evt = await q.get()
+                    yield {"data": json.dumps(evt.to_dict())}
+
+        return EventSourceResponse(gen())
+
     @app.post("/api/generate")
     async def generate(
         text: str = Form(...),
@@ -155,10 +168,13 @@ def build_app() -> FastAPI:
             ref_path = tmp.name
 
         gen_fn = decorate(adapter.generate)
+        bus = get_bus()
         try:
-            wav_bytes, _sr, seed_used = gen_fn(
-                text, ref_path, language, json.loads(params or "{}")
-            )
+            async with bus.session("single", total_turns=1) as sess:
+                wav_bytes, _sr, seed_used = gen_fn(
+                    text, ref_path, language, json.loads(params or "{}")
+                )
+                sess.set_seed(seed_used)
         except Exception as exc:
             return JSONResponse(
                 status_code=500,

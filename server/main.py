@@ -1,6 +1,7 @@
 """FastAPI application factory."""
 from __future__ import annotations
 
+import asyncio
 import json
 import os
 import tempfile
@@ -172,8 +173,8 @@ def build_app() -> FastAPI:
         bus = get_bus()
         try:
             async with bus.session("single", total_turns=1) as sess:
-                wav_bytes, _sr, seed_used = gen_fn(
-                    text, ref_path, language, json.loads(params or "{}")
+                wav_bytes, _sr, seed_used = await asyncio.to_thread(
+                    gen_fn, text, ref_path, language, json.loads(params or "{}"),
                 )
                 sess.set_seed(seed_used)
         except Exception as exc:

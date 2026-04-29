@@ -5,6 +5,7 @@ Generator is in this same file but added in Task 12.
 """
 from __future__ import annotations
 
+import asyncio
 import re
 from dataclasses import dataclass
 
@@ -112,7 +113,8 @@ async def generate_dialog(
     for i, turn in enumerate(turns):
         # Re-apply the same seed before each turn so the run is reproducible.
         apply_seed(seed_used)
-        wav_bytes, sr, adapter_seed_used = adapter.generate(
+        wav_bytes, sr, adapter_seed_used = await asyncio.to_thread(
+            adapter.generate,
             turn.text, paths[turn.speaker], language, params_for_call,
         )
         arr, _ = _decode_wav_to_mono_float(wav_bytes)

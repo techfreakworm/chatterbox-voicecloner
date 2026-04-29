@@ -24,3 +24,37 @@ describe("ParamsPanel", () => {
     expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ exaggeration: 1.2 }));
   });
 });
+
+const specsMixed: ParamSpec[] = [
+  { name: "temperature", label: "Temperature", type: "float", default: 0.8, min: 0.1, max: 1.5, step: 0.05, group: "basic" },
+  { name: "seed", label: "Seed", type: "int", default: -1, min: -1, step: 1, group: "advanced" },
+  { name: "top_p", label: "Top p", type: "float", default: 1.0, min: 0, max: 1, step: 0.01, group: "advanced" },
+];
+
+describe("ParamsPanel groups", () => {
+  it("renders basic params and a closed advanced disclosure by default", () => {
+    render(<ParamsPanel specs={specsMixed} values={{}} onChange={() => {}} />);
+    expect(screen.getByLabelText(/temperature/i)).toBeInTheDocument();
+    // advanced is in the DOM but not visible until <details> opens
+    const seed = screen.getByLabelText(/^seed$/i) as HTMLInputElement;
+    const detailsAncestor = seed.closest("details");
+    expect(detailsAncestor).not.toBeNull();
+    expect(detailsAncestor!.open).toBe(false);
+  });
+
+  it("opens disclosure on summary click and shows advanced params", () => {
+    render(<ParamsPanel specs={specsMixed} values={{}} onChange={() => {}} />);
+    const summary = screen.getByText(/advanced/i);
+    fireEvent.click(summary);
+    const seed = screen.getByLabelText(/^seed$/i) as HTMLInputElement;
+    expect(seed.closest("details")!.open).toBe(true);
+  });
+
+  it("propagates onChange from advanced params", () => {
+    const onChange = vi.fn();
+    render(<ParamsPanel specs={specsMixed} values={{}} onChange={onChange} />);
+    fireEvent.click(screen.getByText(/advanced/i));
+    fireEvent.change(screen.getByLabelText(/^top p$/i), { target: { value: "0.6" } });
+    expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ top_p: 0.6 }));
+  });
+});

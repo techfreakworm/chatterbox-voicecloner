@@ -10,6 +10,7 @@ export type ParamSpec = {
   step?: number;
   choices?: string[];
   help?: string;
+  group?: "basic" | "advanced";
 };
 
 export type ModelInfo = {

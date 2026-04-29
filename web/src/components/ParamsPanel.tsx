@@ -1,10 +1,20 @@
 import type { ParamSpec } from "@/lib/api";
+import InfoTip from "@/components/InfoTip";
 
 type Props = {
   specs: ParamSpec[];
   values: Record<string, unknown>;
   onChange: (next: Record<string, unknown>) => void;
 };
+
+function ParamLabel({ id, label, help }: { id: string; label: string; help?: string }) {
+  return (
+    <span className="inline-flex items-center gap-1.5">
+      <label htmlFor={id} className="label-mono">{label}</label>
+      {help && <InfoTip text={help} />}
+    </span>
+  );
+}
 
 function renderControl(
   s: ParamSpec,
@@ -17,7 +27,7 @@ function renderControl(
     const v = (values[s.name] ?? s.default) as number;
     return (
       <div key={s.name} className="space-y-1.5">
-        <label htmlFor={id} className="label-mono">{s.label}</label>
+        <ParamLabel id={id} label={s.label} help={s.help} />
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
           <input
             id={id}
@@ -40,9 +50,6 @@ function renderControl(
             <span className="label-mono text-muted-foreground">(random per generate)</span>
           )}
         </div>
-        {s.help && (
-          <p className="text-[11px] text-muted-foreground/80 italic">{s.help}</p>
-        )}
       </div>
     );
   }
@@ -51,7 +58,7 @@ function renderControl(
     return (
       <div key={s.name} className="space-y-1.5">
         <div className="flex items-baseline justify-between">
-          <label htmlFor={id} className="label-mono">{s.label}</label>
+          <ParamLabel id={id} label={s.label} help={s.help} />
           <span className="font-mono text-[12px] text-foreground tracking-wider">
             {Number.isFinite(n) ? n.toFixed(2) : String(current)}
           </span>
@@ -67,20 +74,13 @@ function renderControl(
           onChange={(e) => set(s.name, Number(e.target.value))}
           className="w-full accent-[hsl(var(--ember))]"
         />
-        {s.help && (
-          <p className="text-[11px] text-muted-foreground/80 italic">{s.help}</p>
-        )}
       </div>
     );
   }
   if (s.type === "bool") {
     return (
-      <label
-        key={s.name}
-        htmlFor={id}
-        className="flex items-center justify-between cursor-pointer"
-      >
-        <span className="label-mono">{s.label}</span>
+      <div key={s.name} className="flex items-center justify-between">
+        <ParamLabel id={id} label={s.label} help={s.help} />
         <input
           id={id}
           aria-label={s.label}
@@ -89,12 +89,12 @@ function renderControl(
           onChange={(e) => set(s.name, e.target.checked)}
           className="accent-[hsl(var(--ember))]"
         />
-      </label>
+      </div>
     );
   }
   return (
     <div key={s.name} className="space-y-1.5">
-      <label htmlFor={id} className="label-mono block">{s.label}</label>
+      <ParamLabel id={id} label={s.label} help={s.help} />
       <select
         id={id}
         aria-label={s.label}

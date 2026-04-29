@@ -23,38 +23,43 @@ class Adapter:
         ParamSpec(
             name="exaggeration", label="Exaggeration", type="float",
             default=0.5, min=0.0, max=2.0, step=0.05,
-            help="Higher = more expressive prosody.",
+            help="How emotive the speech is. Higher pushes prosody, pacing, and emphasis; lower stays flat and neutral.",
             group="basic",
         ),
         ParamSpec(
             name="cfg_weight", label="CFG weight", type="float",
             default=0.5, min=0.0, max=1.0, step=0.05,
+            help="Classifier-free guidance. Higher sticks closer to the reference voice; lower allows more variation but may drift in identity.",
             group="basic",
         ),
         ParamSpec(
             name="temperature", label="Temperature", type="float",
             default=0.8, min=0.1, max=1.5, step=0.05,
+            help="Sampling randomness. Lower = deterministic and safer; higher = more creative but riskier and prone to artifacts.",
             group="basic",
         ),
         ParamSpec(
             name="seed", label="Seed", type="int",
             default=-1, min=-1, step=1,
-            help="-1 draws a random seed each time.",
+            help="Reproducibility. -1 draws a fresh random seed every run; any non-negative value pins the result so you can reproduce it.",
             group="advanced",
         ),
         ParamSpec(
             name="repetition_penalty", label="Repetition penalty", type="float",
             default=1.2, min=1.0, max=3.0, step=0.05,
+            help="Discourages repeating the same tokens. >1 reduces stuttering and loops; too high hurts natural fluency.",
             group="advanced",
         ),
         ParamSpec(
             name="min_p", label="Min p", type="float",
             default=0.05, min=0.0, max=1.0, step=0.01,
+            help="Cuts off tokens whose probability is below this fraction of the top token's. Higher trims more aggressively.",
             group="advanced",
         ),
         ParamSpec(
             name="top_p", label="Top p", type="float",
             default=1.0, min=0.0, max=1.0, step=0.01,
+            help="Nucleus sampling. Keep tokens until cumulative probability reaches this. Lower = safer/conservative.",
             group="advanced",
         ),
     ]

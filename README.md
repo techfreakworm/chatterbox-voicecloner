@@ -1,3 +1,15 @@
+---
+title: Chatterbox Voice Studio
+emoji: "🎙"
+colorFrom: yellow
+colorTo: red
+sdk: docker
+app_port: 7860
+pinned: false
+license: mit
+short_description: Voice cloning studio for the Chatterbox TTS family.
+---
+
 # Chatterbox Voice Studio
 
 A multi-platform browser-based voice cloning studio for the Chatterbox TTS family

@@ -46,10 +46,15 @@ const config: Config = {
           "0%,100%": { opacity: "1" },
           "50%": { opacity: "0.4" },
         },
+        "progress-stripe": {
+          "0%": { transform: "translateX(-100%)" },
+          "100%": { transform: "translateX(300%)" },
+        },
       },
       animation: {
         "fade-up": "fade-up 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both",
         "pulse-dot": "pulse_dot 1.6s ease-in-out infinite",
+        "progress-stripe": "progress-stripe 1.2s linear infinite",
       },
     },
   },

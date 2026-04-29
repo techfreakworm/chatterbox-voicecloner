@@ -21,3 +21,13 @@ def test_adapter_class_attributes_valid(module_name):
     assert cls.id
     for p in cls.params:
         assert isinstance(p, ParamSpec)
+
+
+@pytest.mark.parametrize("module_name", ADAPTER_MODULES)
+def test_adapter_param_groups_are_valid(module_name):
+    mod = importlib.import_module(module_name)
+    cls = getattr(mod, "Adapter")
+    for p in cls.params:
+        assert p.group in {"basic", "advanced"}, (
+            f"{cls.id}.{p.name} has invalid group: {p.group!r}"
+        )

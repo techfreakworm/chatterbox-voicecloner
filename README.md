@@ -17,8 +17,8 @@ short_description: Voice cloning studio for the Chatterbox TTS family.
 
 A multi-platform browser-based voice cloning studio for the Chatterbox TTS family
 (English, Turbo, Multilingual). Runs locally on macOS (MPS), Linux (CUDA/CPU),
-and Windows (CUDA/CPU). Deploys to Hugging Face Spaces (Free CPU by default,
-ZeroGPU-decorator-ready).
+and Windows (CUDA/CPU). Deploys to Hugging Face Spaces (Docker SDK, Free CPU
+by default; paid GPU tiers supported).
 
 ## Quick start (local)
 
@@ -47,11 +47,9 @@ and opens the studio at http://127.0.0.1:7860.
 This repo's `Dockerfile` is what HF Spaces uses to build the image.
 On Free CPU it runs as-is — generation will be slow (30–90s per clip).
 
-To get GPU on Spaces:
-
-- Subscribe to HF Pro and pick "ZeroGPU" hardware in your Space settings.
-  No code change needed; the `@spaces.GPU` decorator activates.
-- Or pick a paid GPU (T4 small / A10G).
+To get GPU on Spaces, switch the Space hardware to a paid tier (T4 small,
+A10G, L4). ZeroGPU is **not** available on Docker Spaces — it's currently
+restricted to the Gradio SDK only.
 
 ## Environment variables
 

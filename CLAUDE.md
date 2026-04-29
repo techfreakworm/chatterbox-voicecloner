@@ -22,7 +22,6 @@ Use the existing local git config; do not override `user.name` / `user.email` an
 
 ## Working preferences
 
-- Multi-platform code: must run on macOS (MPS), Linux (CUDA/CPU), Windows (CUDA/CPU), and HF Spaces (Free CPU).
-- ZeroGPU-ready: keep the `@spaces.GPU` decorator path working as a no-op locally.
+- Multi-platform code: must run on macOS (MPS), Linux (CUDA/CPU), Windows (CUDA/CPU), and HF Spaces (Free CPU; paid GPU tiers supported).
 - Server is **stateless**. All voice library and history persistence lives in browser IndexedDB. Do not add server-side DBs.
 - YAGNI: don't add features beyond what the spec calls for.

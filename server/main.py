@@ -25,7 +25,6 @@ from server.dialog import (
 )
 from server.progress import get_bus
 from server.registry import Registry
-from server.zerogpu import decorate
 
 
 STATIC_DIR = Path(__file__).parent / "static"
@@ -169,12 +168,11 @@ def build_app() -> FastAPI:
             tmp.close()
             ref_path = tmp.name
 
-        gen_fn = decorate(adapter.generate)
         bus = get_bus()
         try:
             async with bus.session("single", total_turns=1) as sess:
                 wav_bytes, _sr, seed_used = await asyncio.to_thread(
-                    gen_fn, text, ref_path, language, json.loads(params or "{}"),
+                    adapter.generate, text, ref_path, language, json.loads(params or "{}"),
                 )
                 sess.set_seed(seed_used)
         except Exception as exc:

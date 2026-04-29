@@ -20,6 +20,7 @@ from server.dialog import (
     DialogParseError,
     DialogReferenceError,
     generate_dialog,
+    parse_dialog,
 )
 from server.progress import get_bus
 from server.registry import Registry
@@ -222,26 +223,34 @@ def build_app() -> FastAPI:
                 )
             speaker_clips[letter] = data
 
+        bus = get_bus()
         try:
-            wav_bytes, _sr, seed_used = await generate_dialog(
-                registry=app.state.registry,
-                engine_id=engine_id,
-                text=text,
-                language=language,
-                params=json.loads(params or "{}"),
-                speaker_clips=speaker_clips,
-            )
-        except KeyError:
-            raise HTTPException(
-                status_code=404,
-                detail={"error": {"code": "model_not_found", "message": engine_id}},
-            )
+            turns_preview = parse_dialog(text)
+            total_turns = len(turns_preview)
         except DialogParseError as exc:
             return JSONResponse(
                 status_code=400,
                 content={
                     "error": {"code": "dialog_format_invalid", "message": str(exc)}
                 },
+            )
+
+        try:
+            async with bus.session("dialog", total_turns=total_turns) as sess:
+                wav_bytes, _sr, seed_used = await generate_dialog(
+                    registry=app.state.registry,
+                    engine_id=engine_id,
+                    text=text,
+                    language=language,
+                    params=json.loads(params or "{}"),
+                    speaker_clips=speaker_clips,
+                    session=sess,
+                )
+                sess.set_seed(seed_used)
+        except KeyError:
+            raise HTTPException(
+                status_code=404,
+                detail={"error": {"code": "model_not_found", "message": engine_id}},
             )
         except DialogReferenceError as exc:
             return JSONResponse(

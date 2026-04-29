@@ -83,6 +83,7 @@ async def generate_dialog(
     params: dict,
     speaker_clips: dict[str, bytes],   # letter -> raw upload bytes (already validated)
     silence_ms: int = SILENCE_GAP_MS,
+    session: "object | None" = None,   # _Session from server.progress, or None
 ) -> tuple[bytes, int, int]:
     turns = parse_dialog(text)
 
@@ -108,7 +109,7 @@ async def generate_dialog(
     sr_out: int | None = None
     adapter_seed_used: int = seed_used
     chunks: list[_np.ndarray] = []
-    for turn in turns:
+    for i, turn in enumerate(turns):
         # Re-apply the same seed before each turn so the run is reproducible.
         apply_seed(seed_used)
         wav_bytes, sr, adapter_seed_used = adapter.generate(
@@ -120,6 +121,8 @@ async def generate_dialog(
             sr_out = sr
         if silence_ms > 0:
             chunks.append(_np.zeros(int(silence_ms * sr / 1000), dtype=_np.float32))
+        if session is not None:
+            await session.turn_complete(i + 1)
 
     assert sr_out is not None
     full = _np.concatenate(chunks) if chunks else _np.zeros(0, dtype=_np.float32)

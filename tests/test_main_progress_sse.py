@@ -137,3 +137,61 @@ async def test_unknown_engine_does_not_emit_progress(
     # entering the session.
     assert timed_out
     assert events == []
+
+
+async def test_dialog_emits_per_turn_events(
+    monkeypatch, fake_classes, reset_progress_bus,
+):
+    import io
+
+    import numpy as np
+    import soundfile as sf
+
+    def _silent_wav(seconds: float = 0.2, sr: int = 24000) -> bytes:
+        samples = np.zeros(int(seconds * sr), dtype=np.float32)
+        buf = io.BytesIO()
+        sf.write(buf, samples, sr, format="WAV", subtype="PCM_16")
+        return buf.getvalue()
+
+    monkeypatch.setattr("server.main._discover_adapter_classes", lambda: fake_classes)
+    monkeypatch.setattr("server.main.select_device", lambda: "cpu")
+    # Have FakeAdapter emit a real silent WAV so the dialog generator can decode it.
+    monkeypatch.setattr(
+        fake_classes["fake"],
+        "generate",
+        lambda self, text, ref, lang, p: (_silent_wav(0.1), 24000, 0),
+    )
+    app = build_app()
+    from tests.conftest import lifespan_ctx
+    transport = httpx.ASGITransport(app=app)
+    async with lifespan_ctx(app), httpx.AsyncClient(
+        transport=transport, base_url="http://t",
+    ) as c:
+        sse_task = asyncio.create_task(_run_sse_until_done(app, timeout=5.0))
+        # Give the subscriber a moment to register before generate fires.
+        await asyncio.sleep(0.05)
+        gen_resp = await c.post(
+            "/api/generate/dialog",
+            data={
+                "text": "SPEAKER A: hi\nSPEAKER B: hello",
+                "engine_id": "fake",
+                "params": "{}",
+            },
+            files={
+                "reference_wav_a": ("a.wav", _silent_wav(1.0), "audio/wav"),
+                "reference_wav_b": ("b.wav", _silent_wav(1.0), "audio/wav"),
+            },
+        )
+        events, timed_out = await sse_task
+
+    assert gen_resp.status_code == 200
+    assert not timed_out, f"SSE timed out before 'done'; got events: {events}"
+    types = [e["type"] for e in events]
+    assert types[0] == "start"
+    start = events[0]
+    assert start["kind"] == "dialog"
+    assert start["total_turns"] == 2
+    turn_events = [e for e in events if e["type"] == "turn_complete"]
+    turn_indices = [e["turn"] for e in turn_events]
+    assert turn_indices == [1, 2]
+    assert events[-1]["type"] == "done"

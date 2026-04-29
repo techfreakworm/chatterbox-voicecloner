@@ -47,10 +47,42 @@ class Adapter:
     paralinguistic_tags: ClassVar[list[str]] = []  # TBD on first manual run
     supports_voice_clone: ClassVar[bool] = True
     params: ClassVar[list[ParamSpec]] = [
-        ParamSpec(name="exaggeration", label="Exaggeration", type="float",
-                  default=0.5, min=0.0, max=2.0, step=0.05),
-        ParamSpec(name="cfg_weight", label="CFG weight", type="float",
-                  default=0.5, min=0.0, max=1.0, step=0.05),
+        ParamSpec(
+            name="exaggeration", label="Exaggeration", type="float",
+            default=0.5, min=0.0, max=2.0, step=0.05,
+            group="basic",
+        ),
+        ParamSpec(
+            name="cfg_weight", label="CFG weight", type="float",
+            default=0.5, min=0.0, max=1.0, step=0.05,
+            group="basic",
+        ),
+        ParamSpec(
+            name="temperature", label="Temperature", type="float",
+            default=0.8, min=0.1, max=1.5, step=0.05,
+            group="basic",
+        ),
+        ParamSpec(
+            name="repetition_penalty", label="Repetition penalty", type="float",
+            default=2.0, min=1.0, max=3.0, step=0.05,
+            group="basic",
+        ),
+        ParamSpec(
+            name="seed", label="Seed", type="int",
+            default=-1, min=-1, step=1,
+            help="-1 draws a random seed each time.",
+            group="advanced",
+        ),
+        ParamSpec(
+            name="min_p", label="Min p", type="float",
+            default=0.05, min=0.0, max=1.0, step=0.01,
+            group="advanced",
+        ),
+        ParamSpec(
+            name="top_p", label="Top p", type="float",
+            default=1.0, min=0.0, max=1.0, step=0.01,
+            group="advanced",
+        ),
     ]
 
     def __init__(self, device: str) -> None:
@@ -83,6 +115,10 @@ class Adapter:
             audio_prompt_path=reference_wav_path,
             exaggeration=float(params.get("exaggeration", 0.5)),
             cfg_weight=float(params.get("cfg_weight", 0.5)),
+            temperature=float(params.get("temperature", 0.8)),
+            repetition_penalty=float(params.get("repetition_penalty", 2.0)),
+            min_p=float(params.get("min_p", 0.05)),
+            top_p=float(params.get("top_p", 1.0)),
         )
         import numpy as np
         import torch

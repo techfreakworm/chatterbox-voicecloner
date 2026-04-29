@@ -58,3 +58,26 @@ describe("ParamsPanel groups", () => {
     expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ top_p: 0.6 }));
   });
 });
+
+describe("ParamsPanel seed control", () => {
+  it("renders an int input plus a randomize button for seed", () => {
+    const specs: ParamSpec[] = [
+      { name: "seed", label: "Seed", type: "int", default: -1, min: -1, step: 1, group: "advanced" },
+    ];
+    render(<ParamsPanel specs={specs} values={{}} onChange={() => {}} />);
+    fireEvent.click(screen.getByText(/advanced/i));
+    expect(screen.getByLabelText(/^seed$/i)).toHaveAttribute("type", "number");
+    expect(screen.getByRole("button", { name: /random/i })).toBeInTheDocument();
+  });
+
+  it("clicking randomize sets seed to -1 via onChange", () => {
+    const specs: ParamSpec[] = [
+      { name: "seed", label: "Seed", type: "int", default: -1, min: -1, step: 1, group: "advanced" },
+    ];
+    const onChange = vi.fn();
+    render(<ParamsPanel specs={specs} values={{ seed: 42 }} onChange={onChange} />);
+    fireEvent.click(screen.getByText(/advanced/i));
+    fireEvent.click(screen.getByRole("button", { name: /random/i }));
+    expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ seed: -1 }));
+  });
+});

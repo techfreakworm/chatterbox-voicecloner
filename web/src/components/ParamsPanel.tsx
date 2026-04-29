@@ -18,7 +18,7 @@ function renderControl(
     return (
       <div key={s.name} className="space-y-1.5">
         <label htmlFor={id} className="label-mono">{s.label}</label>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
           <input
             id={id}
             aria-label={s.label}
@@ -27,7 +27,7 @@ function renderControl(
             step={s.step ?? 1}
             value={v}
             onChange={(e) => set(s.name, Number(e.target.value))}
-            className="field-input !w-44 font-mono text-[12px] py-1"
+            className="field-input !w-40 sm:!w-44 font-mono text-[12px] py-1"
           />
           <button
             type="button"

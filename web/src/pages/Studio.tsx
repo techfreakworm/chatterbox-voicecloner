@@ -28,7 +28,7 @@ function SectionHeader({ num, title, hint }: { num: string; title: string; hint?
     <div className="space-y-1">
       <div className="flex items-baseline gap-3">
         <span className="marker-num">{num}</span>
-        <h2 className="display-serif text-[22px] leading-tight">{title}</h2>
+        <h2 className="display-serif text-[19px] sm:text-[22px] leading-tight">{title}</h2>
       </div>
       {hint && <p className="label-mono">{hint}</p>}
       <div className="rule-dotted mt-2" />
@@ -181,12 +181,12 @@ export default function Studio() {
   return (
     <div className="min-h-screen relative-z animate-fade-up">
       <header className="border-b border-border">
-        <div className="mx-auto max-w-[1280px] px-8 py-5 flex items-end justify-between">
-          <div className="flex items-end gap-4">
-            <span className="display-serif text-[34px] leading-none">Chatterbox</span>
-            <span className="label-mono pb-1">voice studio · v0.2</span>
+        <div className="mx-auto max-w-[1280px] px-4 sm:px-8 py-4 sm:py-5 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-3 lg:gap-6">
+          <div className="flex items-end gap-3 sm:gap-4">
+            <span className="display-serif text-[26px] sm:text-[34px] leading-none">Chatterbox</span>
+            <span className="label-mono pb-0.5 sm:pb-1 whitespace-nowrap">voice studio · v0.2</span>
           </div>
-          <div className="flex items-center gap-6">
+          <div className="flex flex-wrap items-center gap-3 sm:gap-6">
             <ModeToggle mode={mode} onChange={setMode} />
             {mode === "single" && (
               <ModelPicker
@@ -207,13 +207,13 @@ export default function Studio() {
       />
       <ProgressBar />
       {err && (
-        <div className="border-b border-red-900/40 bg-red-950/30 px-8 py-2.5">
+        <div className="border-b border-red-900/40 bg-red-950/30 px-4 sm:px-8 py-2.5">
           <span className="label-mono text-red-400">error</span>
-          <span className="ml-3 text-sm text-red-300/90">{err}</span>
+          <span className="ml-3 text-sm text-red-300/90 break-words">{err}</span>
         </div>
       )}
 
-      <main className="mx-auto max-w-[1280px] px-8 py-10 grid lg:grid-cols-[minmax(0,1fr)_400px] gap-12">
+      <main className="mx-auto max-w-[1280px] px-4 sm:px-8 py-6 sm:py-10 grid lg:grid-cols-[minmax(0,1fr)_400px] gap-8 lg:gap-12">
         <section className="space-y-12">
           {mode === "single" ? (
             <>
@@ -355,10 +355,10 @@ export default function Studio() {
         </aside>
       </main>
 
-      <footer className="border-t border-border mt-16">
+      <footer className="border-t border-border mt-10 sm:mt-16">
         <MadeBy />
-        <div className="rule-dotted mx-8" />
-        <div className="mx-auto max-w-[1280px] px-8 py-6 flex items-center justify-between">
+        <div className="rule-dotted mx-4 sm:mx-8" />
+        <div className="mx-auto max-w-[1280px] px-4 sm:px-8 py-5 sm:py-6 flex flex-col sm:flex-row items-center sm:justify-between gap-2 sm:gap-0">
           <span className="label-mono">chatterbox · resemble ai</span>
           <span className="label-mono">stateless · browser-persisted</span>
         </div>

@@ -11,9 +11,18 @@ ZeroGPU-decorator-ready).
 
     ./scripts/start.sh
 
+Prereqs: Python 3.11+ and Node.js 20+. If missing, the script will tell you
+the one-line install command for your platform (`brew install python@3.11`
+on macOS, `apt install python3.11 python3.11-venv` on Debian/Ubuntu).
+
 ### Windows
 
     scripts\start.bat
+
+If Python 3.11 or Node.js LTS isn't installed, the script will detect that
+and offer to install them via `winget` (built into Windows 10 1809+ and
+Windows 11). Accept the prompt and re-run `scripts\start.bat` after install
+finishes so the new PATH takes effect.
 
 The script creates a venv, installs Python and Node deps, builds the SPA,
 and opens the studio at http://127.0.0.1:7860.

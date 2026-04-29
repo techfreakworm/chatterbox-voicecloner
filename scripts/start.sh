@@ -10,7 +10,20 @@ if command -v python3.11 >/dev/null 2>&1; then
 elif command -v python3 >/dev/null 2>&1; then
     PY=python3
 else
-    echo "ERROR: python3.11 (or python3) not found. Install Python 3.11+." >&2
+    echo "ERROR: python3.11 (or python3) not found." >&2
+    case "$(uname -s)" in
+        Darwin) echo "    Install with: brew install python@3.11" >&2 ;;
+        Linux)  echo "    Install with your package manager, e.g.: sudo apt install python3.11 python3.11-venv" >&2 ;;
+    esac
+    exit 1
+fi
+
+if ! command -v npm >/dev/null 2>&1; then
+    echo "ERROR: npm not found." >&2
+    case "$(uname -s)" in
+        Darwin) echo "    Install with: brew install node" >&2 ;;
+        Linux)  echo "    Install with your package manager, e.g.: sudo apt install nodejs npm" >&2 ;;
+    esac
     exit 1
 fi
 

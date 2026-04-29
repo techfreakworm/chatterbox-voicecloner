@@ -13,6 +13,7 @@ import DeviceBadge from "@/components/DeviceBadge";
 import DialogComposer, { type DialogSubmit } from "@/components/DialogComposer";
 import HistoryList from "@/components/HistoryList";
 import LoadingBanner from "@/components/LoadingBanner";
+import MadeBy from "@/components/MadeBy";
 import ModelPicker from "@/components/ModelPicker";
 import ModeToggle, { type Mode } from "@/components/ModeToggle";
 import ParamsPanel from "@/components/ParamsPanel";
@@ -355,6 +356,8 @@ export default function Studio() {
       </main>
 
       <footer className="border-t border-border mt-16">
+        <MadeBy />
+        <div className="rule-dotted mx-8" />
         <div className="mx-auto max-w-[1280px] px-8 py-6 flex items-center justify-between">
           <span className="label-mono">chatterbox · resemble ai</span>
           <span className="label-mono">stateless · browser-persisted</span>

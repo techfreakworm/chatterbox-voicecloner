@@ -59,3 +59,14 @@ async def lifespan_ctx(app):
     """Run an ASGI app's lifespan startup/shutdown around an `httpx.AsyncClient`."""
     async with app.router.lifespan_context(app):
         yield
+
+
+@pytest.fixture(autouse=False)
+def reset_progress_bus():
+    """Reset server.progress._BUS so each test gets a fresh bus."""
+    import server.progress as p
+    p._BUS = None
+    try:
+        yield
+    finally:
+        p._BUS = None

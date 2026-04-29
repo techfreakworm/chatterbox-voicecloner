@@ -16,6 +16,7 @@ import LoadingBanner from "@/components/LoadingBanner";
 import ModelPicker from "@/components/ModelPicker";
 import ModeToggle, { type Mode } from "@/components/ModeToggle";
 import ParamsPanel from "@/components/ParamsPanel";
+import ProgressBar from "@/components/ProgressBar";
 import TagBar from "@/components/TagBar";
 import VoiceComposer from "@/components/VoiceComposer";
 import VoiceLibrary from "@/components/VoiceLibrary";
@@ -203,6 +204,7 @@ export default function Studio() {
         visible={loadingModel}
         message="Loading model — first activation can take 30–60s"
       />
+      <ProgressBar />
       {err && (
         <div className="border-b border-red-900/40 bg-red-950/30 px-8 py-2.5">
           <span className="label-mono text-red-400">error</span>
